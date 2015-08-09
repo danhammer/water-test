@@ -87,13 +87,13 @@ function main() {
     var map = new L.Map('map', {
         zoomControl: true,
         drawnControl: true,
-        center: [39.27, -119.77],
+        center: [16.626624, 96.011860],
         zoom: 10
     });
 
     // Add CartoDB basemaps
     L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '<a href="http://cartodb.com">CartoDB</a> © 2014',
+        attribution: '<a href="http://danham.me/r">Dan Hammer</a> © 2015',
         maxZoom: 18
     }).addTo(map);
 
