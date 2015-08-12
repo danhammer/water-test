@@ -87,7 +87,7 @@ function main() {
     var map = new L.Map('map', {
         zoomControl: true,
         drawnControl: true,
-        center: [16.626624, 96.011860],
+        center: [37.591967, -121.547818],
         zoom: 10
     });
 
@@ -162,8 +162,28 @@ function main() {
                 break;
             
         }
-                
-           
+
+        if (pol_pgis) {
+            var xmin = coords[0].lng;
+            var ymin = coords[0].lat;
+            var xmax = coords[3].lng;
+            var ymax = coords[2].lat;
+
+            console.log("http://localhost:8080/tagger?xmin="+xmin+"&xmax="+xmax+"&ymin="+ymin+"&ymax="+ymax)
+
+            $.ajax({
+                dataType: "json",
+                url: "http://localhost:8080/tagger?xmin="+xmin+"&xmax="+xmax+"&ymin="+ymin+"&ymax="+ymax,
+                    success: function(data) {
+                        console.log(data);
+                        spinner.stop(target);
+                        }
+                    
+            });
+
+
+        }
+
         if (pol_pgis) {
             //var year=2001;
             drawnItems.clearLayers(); 
