@@ -2,18 +2,14 @@ function currentUser() {
     return currentEndpoint().match(/http[s]*:\/\/([^.]*).*/)[1];
 }
 
-function currentEndpoint() {
-    return "http://wri-01.cartodb.com/api/v1/map";
-}
 
 function render(year, coords,layer,style,spinner){
     var target = document.getElementById('map');
         spinner.spin(target);
 
-        console.log(year);
             $.ajax({
                 dataType: "json",
-                url: "http://vizz.water-test.appspot.com/water?coords="+coords+"&date="+year+"-01-01",
+                url: "http://waterapp.enviro-service.appspot.com/water?coords="+coords+"&date="+year+"-01-01",
                     success: function(data) {
                         console.log(data);
                         layer.clearLayers(); 
@@ -32,10 +28,9 @@ function render(year, coords,layer,style,spinner){
 
 
 function main() {
-     $('#yearcontrol').hide();
+     $('#yearcontrol');
 
      $('#controls').on('click dblclick mousedown mousewheel', function(e) {
-        console.log('hey');
         e.stopPropagation();
      });
 
@@ -77,7 +72,6 @@ function main() {
     //slider.defaultValue=year;
     //slider.value=year;
     slider.onchange = function(){
-    console.log(this.value);
     document.querySelector('#currentYear').value = this.value;
     year=this.value;
     render(year, pol_pgis, boundary, waterStyle,spinner)
@@ -87,13 +81,13 @@ function main() {
     var map = new L.Map('map', {
         zoomControl: true,
         drawnControl: true,
-        center: [37.591967, -121.547818],
-        zoom: 10
+        center: [39.279219, -119.802868],
+        zoom: 11
     });
 
     // Add CartoDB basemaps
-    L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '<a href="http://danham.me/r">Dan Hammer</a> © 2015',
+    L.tileLayer('http://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGFuaGFtbWVyIiwiYSI6IkpyY19CNFkifQ.2Y7Un3COo3E_81ROBLKkSg', {
+        attribution: '<a href="http://danham.me/r">Hammer</a> © 2015',
         maxZoom: 18
     }).addTo(map);
 
@@ -123,7 +117,7 @@ function main() {
                 shapeOptions: {
                     color: '#a63b55',
                     fill:false,
-                    weight:0.5
+                    weight:2
                 },
                 showArea: true
             },
@@ -163,26 +157,6 @@ function main() {
             
         }
 
-        if (pol_pgis) {
-            var xmin = coords[0].lng;
-            var ymin = coords[0].lat;
-            var xmax = coords[3].lng;
-            var ymax = coords[2].lat;
-
-            console.log("http://localhost:8080/tagger?xmin="+xmin+"&xmax="+xmax+"&ymin="+ymin+"&ymax="+ymax)
-
-            $.ajax({
-                dataType: "json",
-                url: "http://localhost:8080/tagger?xmin="+xmin+"&xmax="+xmax+"&ymin="+ymin+"&ymax="+ymax,
-                    success: function(data) {
-                        console.log(data);
-                        spinner.stop(target);
-                        }
-                    
-            });
-
-
-        }
 
         if (pol_pgis) {
             //var year=2001;
@@ -191,20 +165,15 @@ function main() {
 
             $.ajax({
                 dataType: "json",
-                url: "http://vizz.water-test.appspot.com/water?coords="+pol_pgis+"&date="+year+"-01-01",
+                url: "http://waterapp.enviro-service.appspot.com/water?coords="+pol_pgis+"&date="+year+"-01-01",
                     success: function(data) {
-                        console.log(data);
                         boundary.clearLayers(); 
-                        
-
 
                         $(data.result.features).each(function(key, data) {
                         boundary.addData(data);
                         boundary.setStyle(waterStyle);
                         $('#yearcontrol').fadeIn('slow');
                         
-                        //year++;
-                        //year=(year>2011)?1999:year;
                         spinner.stop(target);
                         });
                     }
@@ -214,56 +183,6 @@ function main() {
         }
 
 
-        if (pol_pgis) {
-
-            $.ajax({
-                dataType: "json",
-                url: 'data.json',
-                // url: "http://vizz.water-test.appspot.com/water/series?coords="+pol_pgis+"&begin=2000-01-01&end=2014-01-01",
-                    success: function(data) {
-                        console.log(data);
-                        res = [];
-                        $(data.result).each(function(key, data) {
-                                res.push([Date.parse(data.date), data.ma, data.smooth]);
-                            }   
-                        )
-
-                        g = new Dygraph(
-                            document.getElementById("series"),
-                            res,
-                                {
-                                    ylabel: '',
-                                    drawXGrid: false,
-                                    drawYGrid: false,
-                                    colors: ["#808080", "#5F94D9"],
-                                    fillGraph: false,
-                                    drawPoints: false,
-                                    labels: ['Date', 'raw', 'smoothed'],
-                                    axes: {
-                                        x: {
-                                            valueFormatter: Dygraph.dateString_,
-                                            axisLabelFormatter: Dygraph.dateAxisFormatter,
-                                            ticker: Dygraph.dateTicker
-                                        }
-                                    },
-                                    drawXAxis: false,
-                                    height: 80,
-                                    width: 651,
-                                    rightGap: 10,
-                                    interactionModel: {}
-                                }
-
-                        )
-                    }
-            }).error(function(errors) {spinner.stop(target);console.log (errors.statustext)});
-
-
-        }
-        
-        else {
-            layer.bindPopup("Could not get value!");
-        }
-        
         drawnItems.addLayer(layer);
     });
 
